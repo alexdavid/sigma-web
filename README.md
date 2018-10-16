@@ -13,7 +13,7 @@ Then see [Usage](#usage) below to tunnel into your mac from another machine
 
 ## Usage
 **Sigma-web provides no authentication! Anyone who has access to the web server can read and send messages on your behalf.**
-To help secure this it listens on `127.0.0.1` only. Change this at your own risk. The preferred way of accessing sigma-web is over an ssh tunnel. For more details see [authentication](#Authentication) below.
+To help secure this it listens on `127.0.0.1` only. Change this at your own risk. The preferred way of accessing sigma-web is over an ssh tunnel. For more details see [Authentication](#authentication) below.
 
 To run sigma and tunnel messages over ssh from a remote machine run something like the following:
 ```shell
