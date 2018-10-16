@@ -2,10 +2,14 @@
 
 A web-based frontend for [Sigma](https://github.com/alexdavid/sigma)
 
-## Install
+## Installation
+Sigma-Web requires an Apple comupter running MacOS 10.12 or later to act as your iMessage server.
+
+To get started install sigma-web must be installed on your MacOS machine:
 ```shell
 go get github.com/alexdavid/sigma-web/backend
 ```
+Then see [Usage](#Usage) below to tunnel into your mac from another machine
 
 ## Usage
 **Sigma-web provides no authentication! Anyone who has access to the web server can read and send messages on your behalf.**
