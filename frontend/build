@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -e
+cd $(dirname "$0")
+
+docker run \
+  -v "$(pwd):/build" \
+  --rm \
+  --user "$(id -u):$(id -g)" \
+  --workdir "/build" \
+  node:8.11.4-alpine \
+  sh -c "yarn && yarn run webpack -p" \
+  ;
+
+docker run \
+  -v "$(pwd):/go/frontend" \
+  --rm \
+  --user "$(id -u):$(id -g)" \
+  --workdir "/go/frontend" \
+  golang:1.11.0-stretch \
+  sh -c "go get -u github.com/go-bindata/go-bindata/... && go-bindata -pkg frontend index.html dist" \
+  ;
