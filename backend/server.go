@@ -48,6 +48,6 @@ func main() {
 		return struct{}{}, sigma.SendMessage(chatId, unmarshaled.Message)
 	})
 
-	err := http.ListenAndServe(":8080", r)
+	err := http.ListenAndServe("127.0.0.1:8080", r)
 	panic(err)
 }
