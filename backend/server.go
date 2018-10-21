@@ -6,19 +6,24 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/alexdavid/sigma"
 	"github.com/alexdavid/sigma-web/backend/helpers"
-	"github.com/alexdavid/sigma/sigma"
+	"github.com/alexdavid/sigma/mock"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	r := mux.NewRouter()
+	client, err := mock.NewClient()
+	if err != nil {
+		panic(err)
+	}
 
 	helpers.HandleStatic(r, "/", "index.html")
 	helpers.HandleStatic(r, "/main.js", "dist/main.js")
 
 	helpers.HandleApi(r, "GET", "/api/chats", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
-		return sigma.Chats()
+		return client.Chats()
 	})
 
 	helpers.HandleApi(r, "GET", "/api/chats/{chatId:[0-9]+}", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
@@ -26,7 +31,7 @@ func main() {
 		if err != nil {
 			return nil, err
 		}
-		return sigma.Messages(sigma.MessagesQuery{
+		return client.Messages(sigma.MessagesQuery{
 			ChatId: chatId,
 		})
 	})
@@ -45,9 +50,9 @@ func main() {
 		if err != nil {
 			return nil, err
 		}
-		return struct{}{}, sigma.SendMessage(chatId, unmarshaled.Message)
+		return struct{}{}, client.SendMessage(chatId, unmarshaled.Message)
 	})
 
-	err := http.ListenAndServe("127.0.0.1:8080", r)
+	err = http.ListenAndServe("127.0.0.1:8080", r)
 	panic(err)
 }
