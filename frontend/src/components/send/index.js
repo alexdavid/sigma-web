@@ -1,5 +1,6 @@
 const C = require("./stylesheet");
 import React from "react";
+import {sendMessage} from "../../api";
 
 export default class Send extends React.Component {
   constructor() {
@@ -18,12 +19,7 @@ export default class Send extends React.Component {
 
   sendMessage(e) {
     e.preventDefault();
-    fetch(`/api/chats/${this.props.chatId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({message: this.state.message}),
-    })
-      .then(res => res.json())
+    sendMessage(this.props.chatId, this.state.message)
       .then(() => this.setState({ message: "" }))
       .catch(err => this.setState({err}));
   }

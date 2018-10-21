@@ -1,6 +1,7 @@
 const C = require("./stylesheet");
 import React from "react";
 import {TextBubble, ImgBubble} from "../chat_bubble";
+import {getMessages} from "../../api";
 
 export default class MessageThread extends React.Component {
   constructor() {
@@ -27,10 +28,7 @@ export default class MessageThread extends React.Component {
   }
 
   update(scrollToBottom) {
-    fetch(`/api/chats/${this.props.chatId}`)
-      .then(res => res.json())
-      .then(messages => this.lookupAttachments(messages))
-      .then(messages => this.groupMessages(messages))
+    getMessages(this.props.chatId)
       .then(messageGroups => this.setState({messageGroups}))
       .then(() => scrollToBottom && this.scrollToBottom())
       .catch(err => this.setState({err}));
@@ -38,28 +36,6 @@ export default class MessageThread extends React.Component {
 
   scrollToBottom() {
     this.refs.root.scrollTo(0, this.refs.root.scrollHeight);
-  }
-
-  lookupAttachments(messages) {
-    return Promise.all(messages.map(message =>
-      fetch(`/api/attachments/${message.id}`)
-        .then(res => res.json())
-        .then(attachments => Object.assign({}, message, {attachments}))
-    ));
-  }
-
-  groupMessages(messages) {
-    let currentGroup = [];
-    const groups = [currentGroup];
-    messages.sort((a, b) => new Date(a.time) - new Date(b.time)).forEach(message => {
-      if (currentGroup.length > 0 && currentGroup[0].fromMe != message.fromMe) {
-        currentGroup = [];
-        groups.push(currentGroup);
-      }
-      currentGroup.push(message);
-      message.attachments.forEach(attachment => currentGroup.push({img: attachment}));
-    });
-    return groups;
   }
 
   render() {

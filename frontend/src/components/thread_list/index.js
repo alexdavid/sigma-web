@@ -1,6 +1,7 @@
 const C = require("./stylesheet");
 const cx = require("classnames/bind").bind(C);
 import React from "react";
+import {getChats} from "../../api";
 
 const ThreadListItem = props => (
   <div className={cx("threadListItem", {selected: props.selected})} onClick={props.onClick}>
@@ -25,8 +26,7 @@ export default class ThreadList extends React.Component {
   }
 
   update() {
-    fetch("/api/chats")
-      .then(res => res.json())
+    getChats()
       .then(threads => this.setState({threads}))
       .catch(err => this.setState({err}));
   }
