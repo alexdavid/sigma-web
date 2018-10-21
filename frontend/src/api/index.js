@@ -26,7 +26,7 @@ export async function getMessages(chatId) {
     }
 
     // Create a bubble for the text if required
-    if (message.text.trim().length > 0) currentGroup.push(message);
+    if (message.text !== "\ufffc") currentGroup.push(message);
 
     // Create a separate message bubble for each attachment
     message.attachments.forEach(attachment => currentGroup.push({
