@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/alexdavid/sigma-web/frontend"
 	"github.com/gorilla/mux"
@@ -28,6 +29,19 @@ func HandleApi(router *mux.Router, method string, url string, handlerFn func(map
 
 		w.Write(json)
 	}).Methods(method)
+}
+
+func HandleFile(router *mux.Router, url string, handlerFn func(map[string]string, io.ReadCloser) (*os.File, error)) {
+	router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
+		file, err := handlerFn(mux.Vars(r), r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		defer file.Close()
+		io.Copy(w, file)
+	})
 }
 
 func HandleStatic(router *mux.Router, url string, staticFileName string) {

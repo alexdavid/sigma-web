@@ -1,6 +1,6 @@
 const C = require("./stylesheet");
 import React from "react";
-import ChatBubble from "../chat_bubble";
+import {TextBubble, ImgBubble} from "../chat_bubble";
 
 export default class MessageThread extends React.Component {
   constructor() {
@@ -13,20 +13,26 @@ export default class MessageThread extends React.Component {
   }
 
   componentDidMount() {
-    this.update();
+    this.update(true);
+    this.interval = setInterval(() => this.update(false), 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   componentDidUpdate(oldProps) {
     if (oldProps.chatId === this.props.chatId) return;
-    this.update();
+    this.update(true);
   }
 
-  update() {
+  update(scrollToBottom) {
     fetch(`/api/chats/${this.props.chatId}`)
       .then(res => res.json())
+      .then(messages => this.lookupAttachments(messages))
       .then(messages => this.groupMessages(messages))
       .then(messageGroups => this.setState({messageGroups}))
-      .then(() => this.scrollToBottom())
+      .then(() => scrollToBottom && this.scrollToBottom())
       .catch(err => this.setState({err}));
   }
 
@@ -34,17 +40,25 @@ export default class MessageThread extends React.Component {
     this.refs.root.scrollTo(0, this.refs.root.scrollHeight);
   }
 
+  lookupAttachments(messages) {
+    return Promise.all(messages.map(message =>
+      fetch(`/api/attachments/${message.id}`)
+        .then(res => res.json())
+        .then(attachments => Object.assign({}, message, {attachments}))
+    ));
+  }
+
   groupMessages(messages) {
     let currentGroup = [];
     const groups = [currentGroup];
-    for (let i = messages.length - 1; i >=0; i--) {
-      let message = messages[i];
+    messages.sort((a, b) => new Date(a.time) - new Date(b.time)).forEach(message => {
       if (currentGroup.length > 0 && currentGroup[0].fromMe != message.fromMe) {
         currentGroup = [];
         groups.push(currentGroup);
       }
-      currentGroup.push(message)
-    }
+      currentGroup.push(message);
+      message.attachments.forEach(attachment => currentGroup.push({img: attachment}));
+    });
     return groups;
   }
 
@@ -58,7 +72,8 @@ export default class MessageThread extends React.Component {
         {this.state.messageGroups.map((g, key) => (
           <div key={key}>
             {g.map(m => (
-              <ChatBubble key={m.id} me={m.fromMe}>{m.text}</ChatBubble>
+              m.img ? <ImgBubble key={m.id} me={m.fromMe} img={m.img} />
+                    : <TextBubble key={m.id} me={m.fromMe}>{m.text}</TextBubble>
             ))}
           </div>
         ))}

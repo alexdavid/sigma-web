@@ -2,19 +2,21 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path"
 	"strconv"
 
 	"github.com/alexdavid/sigma"
 	"github.com/alexdavid/sigma-web/backend/helpers"
-	"github.com/alexdavid/sigma/mock"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	r := mux.NewRouter()
-	client, err := mock.NewClient()
+	client, err := sigma.NewClient()
 	if err != nil {
 		panic(err)
 	}
@@ -34,6 +36,39 @@ func main() {
 		return client.Messages(sigma.MessagesQuery{
 			ChatId: chatId,
 		})
+	})
+
+	helpers.HandleApi(r, "GET", "/api/attachments/{messageId:[0-9]+}", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
+		messageId, err := strconv.Atoi(vars["messageId"])
+		if err != nil {
+			return nil, err
+		}
+		pathsOnDisk, err := client.Attachments(messageId)
+		if err != nil {
+			return nil, err
+		}
+		urlPaths := []string{}
+		for i, pathOnDisk := range pathsOnDisk {
+			ext := path.Ext(pathOnDisk)
+			urlPaths = append(urlPaths, fmt.Sprintf("/api/attachments/%d/%d%s", messageId, i, ext))
+		}
+		return urlPaths, nil
+	})
+
+	helpers.HandleFile(r, "/api/attachments/{messageId:[0-9]+}/{attachmentIdx:[0-9]+}{_:[.a-z]*}", func(vars map[string]string, body io.ReadCloser) (*os.File, error) {
+		messageId, err := strconv.Atoi(vars["messageId"])
+		if err != nil {
+			return nil, err
+		}
+		attachmentIdx, err := strconv.Atoi(vars["attachmentIdx"])
+		if err != nil {
+			return nil, err
+		}
+		pathsOnDisk, err := client.Attachments(messageId)
+		if err != nil {
+			return nil, err
+		}
+		return os.Open(pathsOnDisk[attachmentIdx])
 	})
 
 	type sendMessageJson struct {
