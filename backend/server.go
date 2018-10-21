@@ -55,7 +55,7 @@ func Start() error {
 		return urlPaths, nil
 	})
 
-	helpers.HandleFile(r, "/api/attachments/{messageId:[0-9]+}/{attachmentIdx:[0-9]+}{_:[.a-z]*}", func(vars map[string]string, body io.ReadCloser) (*os.File, error) {
+	helpers.HandleFile(r, "/api/attachments/{messageId:[0-9]+}/{attachmentIdx:[0-9]+}{_:(?:\\..+)?}", func(vars map[string]string, body io.ReadCloser) (*os.File, error) {
 		messageId, err := strconv.Atoi(vars["messageId"])
 		if err != nil {
 			return nil, err
