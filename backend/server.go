@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"encoding/json"
@@ -14,11 +14,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
+func Start() error {
 	r := mux.NewRouter()
 	client, err := sigma.NewClient()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	helpers.HandleStatic(r, "/", "index.html")
@@ -88,6 +88,5 @@ func main() {
 		return struct{}{}, client.SendMessage(chatId, unmarshaled.Message)
 	})
 
-	err = http.ListenAndServe("127.0.0.1:8080", r)
-	panic(err)
+	return http.ListenAndServe("127.0.0.1:8080", r)
 }
