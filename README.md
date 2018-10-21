@@ -7,7 +7,7 @@ Sigma-Web requires an Apple computer running MacOS 10.12 or later to act as your
 
 To get started install sigma-web must be installed on your MacOS machine:
 ```shell
-go get github.com/alexdavid/sigma-web/backend
+go get github.com/alexdavid/sigma-web
 ```
 Then see [Usage](#usage) below to tunnel into your mac from another machine
 
@@ -17,7 +17,7 @@ To help secure this it listens on `127.0.0.1` only. Change this at your own risk
 
 To run sigma and tunnel messages over ssh from a remote machine run something like the following:
 ```shell
-$ ssh -L 8080:localhost:8080 [user]@[host] backend
+$ ssh -L 8080:localhost:8080 [user]@[host] sigma-web
 ```
 Then you should be able to connect to it by hitting [localhost:8080](http://localhost:8080) in your browser.
 
