@@ -30,7 +30,7 @@ const VideoBubble = props => (
 export default props => {
   if (!props.src) return <TextBubble {...props}>{props.text}</TextBubble>
 
-  switch (extname(props.src)) {
+  switch (extname(props.src).toLowerCase()) {
     case ".bmp":
     case ".gif":
     case ".jpeg":
