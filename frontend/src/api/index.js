@@ -32,7 +32,7 @@ export async function getMessages(chatId) {
     message.attachments.forEach(attachment => currentGroup.push({
       id: `${message.id}${attachment}`,
       fromMe: message.fromMe,
-      img: attachment,
+      src: attachment,
     }));
   });
   return groups;

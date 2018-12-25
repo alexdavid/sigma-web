@@ -1,6 +1,6 @@
 const C = require("./stylesheet");
 import React from "react";
-import {TextBubble, ImgBubble} from "../chat_bubble";
+import ChatBubble from "../chat_bubble";
 import {getMessages} from "../../api";
 
 export default class MessageThread extends React.Component {
@@ -47,10 +47,9 @@ export default class MessageThread extends React.Component {
       <div className={C.root} ref="root">
         {this.state.messageGroups.map((g, key) => (
           <div key={key}>
-            {g.map(m => (
-              m.img ? <ImgBubble key={m.id} me={m.fromMe} img={m.img} />
-                    : <TextBubble key={m.id} me={m.fromMe}>{m.text}</TextBubble>
-            ))}
+            {g.map(m =>
+              <ChatBubble key={m.id} me={m.fromMe} src={m.src} text={m.text} />
+            )}
           </div>
         ))}
       </div>
