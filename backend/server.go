@@ -29,13 +29,11 @@ func Start() error {
 	})
 
 	helpers.HandleApi(r, "GET", "/api/chats/{chatId:[0-9]+}", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
-		chatId, err := strconv.Atoi(vars["chatId"])
+		chatID, err := strconv.Atoi(vars["chatId"])
 		if err != nil {
 			return nil, err
 		}
-		return client.Messages(sigma.MessagesQuery{
-			ChatId: chatId,
-		})
+		return client.Messages(chatID, sigma.MessageFilter{Limit: 50})
 	})
 
 	helpers.HandleApi(r, "GET", "/api/attachments/{messageId:[0-9]+}", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
