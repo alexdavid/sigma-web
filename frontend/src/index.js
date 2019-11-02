@@ -1,3 +1,4 @@
+import './global_styles'
 import Main from "./components/main";
 import React from "react";
 import reactDom from "react-dom";
