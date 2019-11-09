@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = (env, argv) => ({
   mode: "development",
 
   resolve: {
@@ -22,10 +22,11 @@ module.exports = {
         "style-loader",
         {loader: "css-loader", options: {
           modules: true,
-          localIdentName: process.env.NODE_ENV == "production" ? "[hash:base64:5]" : "[path]__[local]",
+          localIdentName: argv.mode == "production" ? "[hash:base64:5]" : "[path]__[local]",
         }},
+        "postcss-loader",
         "stylus-loader",
       ],
     }],
   },
-};
+});
