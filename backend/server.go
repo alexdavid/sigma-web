@@ -75,9 +75,9 @@ func Start() error {
 			return nil, err
 		}
 
-		file, _, _ := r.FormFile("attachment")
+		file, header, _ := r.FormFile("attachment")
 		if file != nil {
-			tmpFile, err := ioutil.TempFile("", "")
+			tmpFile, err := ioutil.TempFile("", "*."+header.Filename)
 			if err != nil {
 				return nil, err
 			}
