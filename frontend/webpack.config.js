@@ -27,6 +27,9 @@ module.exports = (env, argv) => ({
         "postcss-loader",
         "stylus-loader",
       ],
+    }, {
+      test: /.svg$/,
+      loader: "url-loader",
     }],
   },
 });

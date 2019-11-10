@@ -1,9 +1,9 @@
 package backend
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -21,23 +21,23 @@ func Start() error {
 		return err
 	}
 
-	helpers.HandleStatic(r, "/", "index.html")
-	helpers.HandleStatic(r, "/main.js", "dist/main.js")
+	route(r, "GET", "/", helpers.StaticHandler("index.html"))
+	route(r, "GET", "/main.js", helpers.StaticHandler("dist/main.js"))
 
-	helpers.HandleApi(r, "GET", "/api/chats", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
+	route(r, "GET", "/api/chats", helpers.JSONHandler(func(r *http.Request) (interface{}, error) {
 		return client.Chats()
-	})
+	}))
 
-	helpers.HandleApi(r, "GET", "/api/chats/{chatId:[0-9]+}", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
-		chatID, err := strconv.Atoi(vars["chatId"])
+	route(r, "GET", "/api/chats/{chatId:[0-9]+}", helpers.JSONHandler(func(r *http.Request) (interface{}, error) {
+		chatID, err := strconv.Atoi(mux.Vars(r)["chatId"])
 		if err != nil {
 			return nil, err
 		}
 		return client.Messages(chatID, sigma.MessageFilter{Limit: 50})
-	})
+	}))
 
-	helpers.HandleApi(r, "GET", "/api/attachments/{messageId:[0-9]+}", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
-		messageId, err := strconv.Atoi(vars["messageId"])
+	route(r, "GET", "/api/attachments/{messageId:[0-9]+}", helpers.JSONHandler(func(r *http.Request) (interface{}, error) {
+		messageId, err := strconv.Atoi(mux.Vars(r)["messageId"])
 		if err != nil {
 			return nil, err
 		}
@@ -51,14 +51,14 @@ func Start() error {
 			urlPaths = append(urlPaths, fmt.Sprintf("/api/attachments/%d/%d%s", messageId, i, ext))
 		}
 		return urlPaths, nil
-	})
+	}))
 
-	helpers.HandleFile(r, "/api/attachments/{messageId:[0-9]+}/{attachmentIdx:[0-9]+}{_:(?:\\..+)?}", func(vars map[string]string, body io.ReadCloser) (*os.File, error) {
-		messageId, err := strconv.Atoi(vars["messageId"])
+	route(r, "GET", "/api/attachments/{messageId:[0-9]+}/{attachmentIdx:[0-9]+}{_:(?:\\..+)?}", helpers.FileHandler(func(r *http.Request) (*os.File, error) {
+		messageId, err := strconv.Atoi(mux.Vars(r)["messageId"])
 		if err != nil {
 			return nil, err
 		}
-		attachmentIdx, err := strconv.Atoi(vars["attachmentIdx"])
+		attachmentIdx, err := strconv.Atoi(mux.Vars(r)["attachmentIdx"])
 		if err != nil {
 			return nil, err
 		}
@@ -67,24 +67,35 @@ func Start() error {
 			return nil, err
 		}
 		return os.Open(pathsOnDisk[attachmentIdx])
-	})
+	}))
 
-	type sendMessageJson struct {
-		Message string `json:"message"`
-	}
-	helpers.HandleApi(r, "POST", "/api/chats/{chatId:[0-9]+}", func(vars map[string]string, body io.ReadCloser) (interface{}, error) {
-		chatId, err := strconv.Atoi(vars["chatId"])
+	route(r, "POST", "/api/chats/{chatId:[0-9]+}", helpers.JSONHandler(func(r *http.Request) (interface{}, error) {
+		chatID, err := strconv.Atoi(mux.Vars(r)["chatId"])
 		if err != nil {
 			return nil, err
 		}
-		var unmarshaled sendMessageJson
-		decoder := json.NewDecoder(body)
-		err = decoder.Decode(&unmarshaled)
-		if err != nil {
-			return nil, err
+
+		file, _, _ := r.FormFile("attachment")
+		if file != nil {
+			tmpFile, err := ioutil.TempFile("", "")
+			if err != nil {
+				return nil, err
+			}
+			if _, err = io.Copy(tmpFile, file); err != nil {
+				return nil, err
+			}
+			if err = client.SendMedia(chatID, tmpFile.Name()); err != nil {
+				return nil, err
+			}
+			return struct{}{}, os.Remove(tmpFile.Name())
+		} else {
+			return struct{}{}, client.SendMessage(chatID, r.FormValue("message"))
 		}
-		return struct{}{}, client.SendMessage(chatId, unmarshaled.Message)
-	})
+	}))
 
 	return http.ListenAndServe("127.0.0.1:8080", r)
+}
+
+func route(router *mux.Router, method string, url string, handler http.HandlerFunc) {
+	router.HandleFunc(url, handler).Methods(method)
 }

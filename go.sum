@@ -1,5 +1,7 @@
 github.com/alexdavid/sigma v0.0.0-20191102222519-85082d525f3c h1:5zGNj4rUTkrDhBctyY7vmKXqgMAdxriCO0Rd5pLygps=
 github.com/alexdavid/sigma v0.0.0-20191102222519-85082d525f3c/go.mod h1:XgK0VCWGhduSOsnWICMBeEcwxR4UusSgBOeVFoo6xqs=
+github.com/alexdavid/sigma v0.0.0-20191109230052-d59bf24ede96 h1:/+KbNheihutotZyKIeWfZTOpfbS+C4c2FxBOl57o7Ac=
+github.com/alexdavid/sigma v0.0.0-20191109230052-d59bf24ede96/go.mod h1:XgK0VCWGhduSOsnWICMBeEcwxR4UusSgBOeVFoo6xqs=
 github.com/gorilla/mux v1.7.3 h1:gnP5JzjVOuiZD07fKKToCAOjS0yOpj/qPETTXCCS6hw=
 github.com/gorilla/mux v1.7.3/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
 github.com/mattn/go-sqlite3 v1.11.0 h1:LDdKkqtYlom37fkvqs8rMPFKAMe8+SgjbwZ6ex1/A/Q=

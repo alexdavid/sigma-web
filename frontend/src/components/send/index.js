@@ -33,10 +33,17 @@ export default class Send extends React.Component {
       <div className={C.root}>
         <form onSubmit={this.sendMessage}>
           <input
+            className={C.message}
             onChange={this.updateMessage}
             value={this.state.message}
             placeholder="Send Message" />
         </form>
+        <div className={C.upload}>
+          <input
+            type="file"
+            onChange={e => sendMessage(this.props.chatId, "", e.target.files[0])}
+          />
+        </div>
       </div>
     );
   }

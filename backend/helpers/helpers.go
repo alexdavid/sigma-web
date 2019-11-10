@@ -7,19 +7,17 @@ import (
 	"os"
 
 	"github.com/alexdavid/sigma-web/frontend"
-	"github.com/gorilla/mux"
 )
 
-func HandleApi(router *mux.Router, method string, url string, handlerFn func(map[string]string, io.ReadCloser) (interface{}, error)) {
-	router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
-		data, err := handlerFn(mux.Vars(r), r.Body)
+func JSONHandler(handler func(r *http.Request) (interface{}, error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data, err := handler(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			data = struct {
 				Error string `json:"error"`
 			}{Error: err.Error()}
 		}
-
 		json, err := json.Marshal(data)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -28,12 +26,12 @@ func HandleApi(router *mux.Router, method string, url string, handlerFn func(map
 		}
 
 		w.Write(json)
-	}).Methods(method)
+	}
 }
 
-func HandleFile(router *mux.Router, url string, handlerFn func(map[string]string, io.ReadCloser) (*os.File, error)) {
-	router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
-		file, err := handlerFn(mux.Vars(r), r.Body)
+func FileHandler(handler func(r *http.Request) (*os.File, error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		file, err := handler(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -41,16 +39,16 @@ func HandleFile(router *mux.Router, url string, handlerFn func(map[string]string
 		}
 		defer file.Close()
 		io.Copy(w, file)
-	})
+	}
 }
 
-func HandleStatic(router *mux.Router, url string, staticFileName string) {
-	router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
-		data, err := frontend.Asset(staticFileName)
+func StaticHandler(fileName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data, err := frontend.Asset(fileName)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 		}
 		w.Write(data)
-	})
+	}
 }

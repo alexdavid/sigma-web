@@ -38,11 +38,13 @@ export async function getMessages(chatId) {
   return groups;
 }
 
-export async function sendMessage(chatId, message) {
+export async function sendMessage(chatId, message, attachment) {
+  const formData = new FormData();
+  if (message) formData.append('message', message);
+  if (attachment) formData.append('attachment', attachment);
   const res = await fetch(`/api/chats/${chatId}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({message}),
+    body: formData,
   });
   await res.json();
 }
