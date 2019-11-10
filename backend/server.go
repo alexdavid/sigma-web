@@ -87,7 +87,7 @@ func Start() error {
 			if err = client.SendMedia(chatID, tmpFile.Name()); err != nil {
 				return nil, err
 			}
-			return struct{}{}, os.Remove(tmpFile.Name())
+			return struct{}{}, nil
 		} else {
 			return struct{}{}, client.SendMessage(chatID, r.FormValue("message"))
 		}
