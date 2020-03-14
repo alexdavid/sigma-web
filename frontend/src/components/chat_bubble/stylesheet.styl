@@ -18,12 +18,13 @@ $vertical-padding=8px
 
 .bubble
   position relative
-  max-width 100%
+  max-width 70%
   box-sizing border-box
   padding $vertical-padding $horizontal-padding
   font-size $font-size
   border-radius ($font-size / 2 + $vertical-padding)
   overflow-wrap break-word
+  white-space pre-wrap
 
   &:before, &:after
     position absolute
