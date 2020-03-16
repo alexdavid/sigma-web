@@ -13,12 +13,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Start() error {
+func Build(client sigma.Client) http.Handler {
 	r := mux.NewRouter()
-	client, err := sigma.NewClient()
-	if err != nil {
-		return err
-	}
 
 	route(r, "GET", "/", helpers.StaticHandler("index.html"))
 	route(r, "GET", "/main.js", helpers.StaticHandler("dist/main.js"))
@@ -85,7 +81,7 @@ func Start() error {
 		return struct{}{}, client.SendMessage(chatID, unmarshaled.Message)
 	}))
 
-	return http.ListenAndServe("127.0.0.1:8080", r)
+	return r
 }
 
 func route(router *mux.Router, method string, url string, handler http.HandlerFunc) {
