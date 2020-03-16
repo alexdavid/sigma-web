@@ -9,13 +9,12 @@ import (
 
 	"github.com/alexdavid/sigma"
 	"github.com/alexdavid/sigma-web/backend/helpers"
-	"github.com/alexdavid/sigma/mock"
 	"github.com/gorilla/mux"
 )
 
 func Start() error {
 	r := mux.NewRouter()
-	client, err := mock.NewClient()
+	client, err := sigma.NewClient()
 	if err != nil {
 		return err
 	}
