@@ -2,8 +2,6 @@ package backend
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -11,12 +9,13 @@ import (
 
 	"github.com/alexdavid/sigma"
 	"github.com/alexdavid/sigma-web/backend/helpers"
+	"github.com/alexdavid/sigma/mock"
 	"github.com/gorilla/mux"
 )
 
 func Start() error {
 	r := mux.NewRouter()
-	client, err := sigma.NewClient()
+	client, err := mock.NewClient()
 	if err != nil {
 		return err
 	}
@@ -77,14 +76,7 @@ func Start() error {
 
 		file, header, _ := r.FormFile("attachment")
 		if file != nil {
-			tmpFile, err := ioutil.TempFile("", "*."+header.Filename)
-			if err != nil {
-				return nil, err
-			}
-			if _, err = io.Copy(tmpFile, file); err != nil {
-				return nil, err
-			}
-			if err = client.SendMedia(chatID, tmpFile.Name()); err != nil {
+			if err = client.SendMedia(chatID, header.Filename, file); err != nil {
 				return nil, err
 			}
 			return struct{}{}, nil
