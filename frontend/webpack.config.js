@@ -3,6 +3,8 @@ module.exports = (env, argv) => ({
 
   resolve: {
     extensions: [
+      ".tsx",
+      ".ts",
       ".js",
       ".styl",
     ],
@@ -10,6 +12,10 @@ module.exports = (env, argv) => ({
 
   module: {
     rules: [{
+      test: /\.tsx?$/,
+      loader: 'ts-loader',
+      exclude: /node_modules/,
+    }, {
       test: /.js$/,
       loader: "babel-loader",
       exclude: /node_modules/,
@@ -27,6 +33,9 @@ module.exports = (env, argv) => ({
         "postcss-loader",
         "stylus-loader",
       ],
+    }, {
+      test: /.svg$/,
+      loader: "url-loader",
     }],
   },
 });
